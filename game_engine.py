@@ -32,6 +32,7 @@ def main():
     con = libtcod.console_new(screen_width, screen_height)
 
     game_map = GameMap(map_width, map_height)
+    game_map.make_map()
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()
@@ -55,7 +56,9 @@ def main():
 
         if move:
             dx, dy = move
-            if not game_map.is_blocked(player.x + dx, player.y + dy):
+            if game_map.is_blocked(player.x + dx, player.y + dy):
+                game_map.dig(player.x + dx, player.y + dy)
+            else:
                 player.move(dx, dy)
 
         if esc:

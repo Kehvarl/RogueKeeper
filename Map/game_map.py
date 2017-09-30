@@ -1,4 +1,5 @@
 from Map.tile import Tile
+from Map.room import Room
 
 
 class GameMap:
@@ -15,18 +16,32 @@ class GameMap:
         self.height = height
         self.tiles = self.initialize_tiles()
 
-    def initialize_tiles(self, default_block_move=True, default_block_sight=False):
+    def initialize_tiles(self, default_block_move=True, default_block_sight=True,
+                         default_hardness=1):
         """
         Set the initial tilestate for a new map
         :param bool default_block_move:  Tiles block movement by default
         :param bool default_block_sight:  Tiles block sight by default
+        :param int default_hardness: How difficult it is to carve through this material
         :return list: Tiles that make up the map
         """
-        tiles = [[Tile(default_block_move, default_block_sight)
-                  for _ in range(self.height)]
-                 for _ in range(self.width)]
+        tiles = [
+            [Tile(block_move=default_block_move,
+                  block_sight=default_block_sight,
+                  hardness=default_hardness)
+             for _ in range(self.height)]
+            for _ in range(self.width)]
 
         return tiles
+
+    def make_map(self):
+        """
+        Create initial Map Layout
+        """
+        room1 = Room(10, 15, 10, 15)
+        room2 = Room(35, 15, 10, 15)
+        self.create_room(room1)
+        self.create_room(room2)
 
     def create_room(self, room):
         """
@@ -37,6 +52,15 @@ class GameMap:
             for y in range(room.y1 + 1, room.y2):
                 self.tiles[x][y].block_move = False
                 self.tiles[x][y].block_sight = False
+
+    def dig(self, x, y, strength=1):
+        """
+        Try to tunnel into a Tile
+        :param int x: position of Tile on map
+        :param int y: position of Tile on map
+        :param int strength: Speed at which a tile is carved through.
+        """
+        self.tiles[x][y].dig(strength)
 
     def is_blocked(self, x, y):
         """
