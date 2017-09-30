@@ -17,7 +17,7 @@ class GameMap:
 
     def initialize_tiles(self, default_block_move=True, default_block_sight=False):
         """
-        Set the initial tilestate for a new map
+        Set the initial tile-state for a new map
         :param bool default_block_move:  Tiles block movement by default
         :param bool default_block_sight:  Tiles block sight by default
         :return list: Tiles that make up the map
