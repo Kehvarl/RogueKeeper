@@ -1,6 +1,5 @@
 from random import randint
 
-
 class Room:
     """
     A room in the Game Map
@@ -36,21 +35,3 @@ class Room:
         x = randint(self.x1, self.x2)
         y = randint(self.y1, self.y2)
         return x, y
-
-    def add_component(self, component=None):
-        """
-        Add a room component
-        :param component:
-        """
-        if component:
-            component.owner = self
-            self.components.append(component)
-
-    def remove_component(self, component=None):
-        """
-        Remove a component from the room
-        :param component:
-        :return:
-        """
-        if component and component in self.components:
-            self.components.remove(component)
