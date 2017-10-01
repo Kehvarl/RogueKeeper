@@ -1,3 +1,5 @@
+from random import randint
+
 from Map.tile import Tile
 from Map.room import Room
 
@@ -14,7 +16,10 @@ class GameMap:
         """
         self.width = width
         self.height = height
+        self.player_start_x = int(width / 2)
+        self.player_start_y = int(height / 2)
         self.tiles = self.initialize_tiles()
+        self.rooms = []
 
     def initialize_tiles(self, default_block_move=True, default_block_sight=True,
                          default_hardness=1):
@@ -34,14 +39,60 @@ class GameMap:
 
         return tiles
 
-    def make_map(self):
+    def make_map(self, max_rooms=1, room_min_size=5, room_max_size=10):
         """
         Create initial Map Layout
         """
-        room1 = Room(10, 15, 10, 15)
-        room2 = Room(35, 15, 10, 15)
-        self.create_room(room1)
-        self.create_room(room2)
+        num_rooms = 0
+
+        for r in range(max_rooms):
+            # random width and height
+            w = randint(room_min_size, room_max_size)
+            h = randint(room_min_size, room_max_size)
+            # random position without going out of the boundaries of the map
+            x = randint(0, self.width - w - 1)
+            y = randint(0, self.height - h - 1)
+
+            # "Rect" class makes rectangles easier to work with
+            new_room = Room(x, y, w, h)
+
+            # run through the other rooms and see if they intersect with this one
+            for other_room in self.rooms:
+                if new_room.intersect(other_room):
+                    break
+            else:
+                # this means there are no intersections, so this room is valid
+
+                # "paint" it to the map's tiles
+                self.create_room(new_room)
+
+                # center coordinates of new room, will be useful later
+                (new_x, new_y) = new_room.center()
+
+                if num_rooms == 0:
+                    # this is the first room, where the player starts at
+                    self.player_start_x = new_x
+                    self.player_start_y = new_y
+                else:
+                    # all rooms after the first:
+                    # connect it to the previous room with a tunnel
+
+                    # center coordinates of previous room
+                    (prev_x, prev_y) = self.rooms[num_rooms - 1].center()
+
+                    # flip a coin (random number that is either 0 or 1)
+                    if randint(0, 1) == 1:
+                        # first move horizontally, then vertically
+                        self.create_h_tunnel(prev_x, new_x, prev_y)
+                        self.create_v_tunnel(prev_y, new_y, new_x)
+                    else:
+                        # first move vertically, then horizontally
+                        self.create_v_tunnel(prev_y, new_y, prev_x)
+                        self.create_h_tunnel(prev_x, new_x, new_y)
+
+                # finally, append the new room to the list
+                self.rooms.append(new_room)
+                num_rooms += 1
 
     def create_room(self, room):
         """
@@ -52,6 +103,28 @@ class GameMap:
             for y in range(room.y1 + 1, room.y2):
                 self.tiles[x][y].block_move = False
                 self.tiles[x][y].block_sight = False
+
+    def create_h_tunnel(self, x1, x2, y):
+        """
+        Create a horizontal tunnel between two points
+        :param int x1: starting x coordinate
+        :param int x2: ending x coordinate
+        :param int y: y coordinate for both point
+        """
+        for x in range(min(x1, x2), max(x1, x2) + 1):
+            self.tiles[x][y].block_move = False
+            self.tiles[x][y].block_sight = False
+
+    def create_v_tunnel(self, y1, y2, x):
+        """
+        Create a vertical tunnel between two points
+        :param int y1: starting y coordinate
+        :param int y2: ending y coordinate
+        :param int x:  x coordinate for both points
+        """
+        for y in range(min(y1, y2), max(y1, y2) + 1):
+            self.tiles[x][y].block_move = False
+            self.tiles[x][y].block_sight = False
 
     def dig(self, x, y, strength=1):
         """

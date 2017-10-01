@@ -17,13 +17,6 @@ def main():
         'dark_ground': libtcod.Color(50, 50, 150)
     }
 
-    player_x = int(screen_width / 2)
-    player_y = int(screen_height / 2)
-
-    player = Entity(player_x, player_y, 'G', libtcod.white)
-    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
-    entities = [npc, player]
-
     libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE |
                                     libtcod.FONT_LAYOUT_TCOD)
 
@@ -32,7 +25,14 @@ def main():
     con = libtcod.console_new(screen_width, screen_height)
 
     game_map = GameMap(map_width, map_height)
-    game_map.make_map()
+    game_map.make_map(5, 10, 20)
+
+    player_x = game_map.player_start_x
+    player_y = game_map.player_start_y
+
+    player = Entity(player_x, player_y, 'G', libtcod.white)
+    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
+    entities = [npc, player]
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()

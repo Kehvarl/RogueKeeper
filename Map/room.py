@@ -1,5 +1,6 @@
 from random import randint
 
+
 class Room:
     """
     A room in the Game Map
@@ -18,16 +19,25 @@ class Room:
         self.y2 = y + h
         self.components = []
 
-    def get_center(self):
+    def intersect(self, other):
+        """
+        Check for overlapping rooms
+        :param Room other: other room to test
+        :return bool: True if the two rooms overlap
+        """
+        return (self.x1 <= other.x2 and self.x2 >= other.x1 and
+                self.y1 <= other.y2 and self.y2 >= other.y1)
+
+    def center(self):
         """
         Get the center of the room
         :return int, int: x position, y position
         """
-        x = self.x1 + int((self.x2 - self.x1) / 2)
-        y = self.y1 + int((self.y2 - self.y1) / 2)
+        x = int((self.x1 + self.x2) / 2)
+        y = int((self.y1 + self.y2) / 2)
         return x, y
 
-    def get_random_point(self):
+    def random_point(self):
         """
         Get a random point in the room
         :return int, int: x position, y position
