@@ -109,6 +109,12 @@ class GameMap:
             self.create_ore_vein(x, y, iron_ore)
 
     def create_ore_vein(self, x, y, ore_function):
+        """
+        Spread ore using Random-Walk
+        :param int x: starting position
+        :param int y: starting position
+        :param Callable ore_function: minable_resource function
+        """
         current_x = x
         current_y = y
         for steps in range(randint(5, 50)):
