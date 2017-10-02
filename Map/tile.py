@@ -21,12 +21,29 @@ class Tile:
         else:
             self.hardness = 0
 
+        self.resources = []
         self.explored = False
 
+    def clear(self):
+        """
+        Make this tile an open space
+        """
+        self.hardness = 0
+        self.block_move = False
+        self.block_sight = False
+
     def dig(self, strength=1):
+        """
+        Carve through this tile
+        :param strength: Speed at which digging occurs
+        :return dict: Ore type and quantity
+        """
         if self.hardness > strength:
             self.hardness -= strength
+            return None
         else:
-            self.hardness = 0
-            self.block_move = False
-            self.block_sight = False
+            self.clear()
+            mined_resources = []
+            for resource in self.resources:
+                mined_resources.append(resource())
+            return mined_resources

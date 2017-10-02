@@ -32,7 +32,8 @@ def main():
 
     player = Entity(player_x, player_y, 'G', libtcod.white)
     npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
-    entities = [npc, player]
+    game_map.entities = [npc, player]
+    game_map.seed_ore()
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()
@@ -40,11 +41,11 @@ def main():
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
 
-        render_all(con, entities, game_map, screen_width, screen_height, colors)
+        render_all(con, game_map.entities, game_map, screen_width, screen_height, colors)
 
         libtcod.console_flush()
 
-        clear_all(con, entities)
+        clear_all(con, game_map.entities)
 
         libtcod.console_put_char(con, player_x, player_y, ' ', libtcod.BKGND_NONE)
 

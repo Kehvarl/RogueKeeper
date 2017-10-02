@@ -2,6 +2,7 @@ from random import randint
 
 from Map.tile import Tile
 from Map.room import Room
+from Map.resource_functions import iron_ore
 
 
 class GameMap:
@@ -20,6 +21,7 @@ class GameMap:
         self.player_start_y = int(height / 2)
         self.tiles = self.initialize_tiles()
         self.rooms = []
+        self.entities = []
 
     def initialize_tiles(self, default_block_move=True, default_block_sight=True,
                          default_hardness=1):
@@ -42,6 +44,9 @@ class GameMap:
     def make_map(self, max_rooms=1, room_min_size=5, room_max_size=10):
         """
         Create initial Map Layout
+        :param int max_rooms: Number of rooms to attempt to generate
+        :param int room_min_size: Smallest allowable room (width or height)
+        :param int room_max_size: Largest allowable room (width or height)
         """
         num_rooms = 0
 
@@ -94,6 +99,25 @@ class GameMap:
                 self.rooms.append(new_room)
                 num_rooms += 1
 
+    def seed_ore(self):
+        """
+        Scatter resources around the map
+        """
+        for ore in range(randint(10,25)):
+            x = randint(0, self.width - 1)
+            y = randint(0, self.height - 1)
+            self.create_ore_vein(x, y, iron_ore)
+
+    def create_ore_vein(self, x, y, ore_function):
+        current_x = x
+        current_y = y
+        for steps in range(randint(5, 50)):
+            if 0 < current_y < self.height and 0 < current_x < self.width:
+                if self.tiles[current_x][current_y].hardness > 0:
+                    self.tiles[current_x][current_y].resources.append(ore_function)
+            current_x += randint(-1, 1)
+            current_y += randint(-1, 1)
+
     def create_room(self, room):
         """
         Set the tiles of a room to be passable
@@ -101,8 +125,7 @@ class GameMap:
         """
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
-                self.tiles[x][y].block_move = False
-                self.tiles[x][y].block_sight = False
+                self.tiles[x][y].clear()
 
     def create_h_tunnel(self, x1, x2, y):
         """
@@ -112,8 +135,7 @@ class GameMap:
         :param int y: y coordinate for both point
         """
         for x in range(min(x1, x2), max(x1, x2) + 1):
-            self.tiles[x][y].block_move = False
-            self.tiles[x][y].block_sight = False
+            self.tiles[x][y].clear()
 
     def create_v_tunnel(self, y1, y2, x):
         """
@@ -123,17 +145,17 @@ class GameMap:
         :param int x:  x coordinate for both points
         """
         for y in range(min(y1, y2), max(y1, y2) + 1):
-            self.tiles[x][y].block_move = False
-            self.tiles[x][y].block_sight = False
+            self.tiles[x][y].clear()
 
     def dig(self, x, y, strength=1):
         """
-        Try to tunnel into a Tile
+        Try to tunnel into a Tile, may result in ore and treasure
         :param int x: position of Tile on map
         :param int y: position of Tile on map
         :param int strength: Speed at which a tile is carved through.
+        :return dict: Type and Quantity of anything dug up
         """
-        self.tiles[x][y].dig(strength)
+        return self.tiles[x][y].dig(strength)
 
     def is_blocked(self, x, y):
         """
