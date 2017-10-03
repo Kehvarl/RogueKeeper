@@ -9,6 +9,7 @@ class GameMap:
     """
     Represents a complete Game Map and all the Tiles on it
     """
+
     def __init__(self, width, height):
         """
         Create a new map
@@ -103,7 +104,7 @@ class GameMap:
         """
         Scatter resources around the map
         """
-        for ore in range(randint(10,25)):
+        for ore in range(randint(10, 25)):
             x = randint(0, self.width - 1)
             y = randint(0, self.height - 1)
             self.create_ore_vein(x, y, iron_ore)
