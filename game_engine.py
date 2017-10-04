@@ -2,7 +2,7 @@ import libtcodpy as libtcod
 from Entities.entity import Entity
 from input_handlers import handle_keys
 from UI.render_functions import render_all, clear_all
-from Map.game_map import  GameMap
+from Map.game_map import GameMap
 
 
 def main():
@@ -54,14 +54,18 @@ def main():
         move = action.get('move')
         esc = action.get('esc')
         fullscreen = action.get('fullscreen')
+        resources = None
 
         if move:
             dx, dy = move
             if game_map.is_blocked(player.x + dx, player.y + dy):
-                game_map.dig(player.x + dx, player.y + dy)
+                resources = game_map.dig(player.x + dx, player.y + dy)
             else:
                 player.move(dx, dy)
 
+        if resources:
+            for resource in resources:
+                print(resource)
         if esc:
             return True
 
