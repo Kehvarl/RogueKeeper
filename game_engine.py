@@ -1,5 +1,6 @@
 import libtcodpy as libtcod
 from Entities.entity import Entity
+from Components.creature import Creature
 from input_handlers import handle_keys
 from UI.render_functions import render_all, clear_all
 from Map.game_map import GameMap
@@ -31,7 +32,11 @@ def main():
     player_y = game_map.player_start_y
 
     player = Entity(player_x, player_y, 'G', libtcod.white)
+    player_creature = Creature(25, 5, 5, 0)
+    player.add_component(player_creature)
     npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
+    npc_creature = Creature(10, 5, 5, 25)
+    npc.add_component(npc_creature)
     game_map.entities = [npc, player]
     game_map.seed_ore()
 
