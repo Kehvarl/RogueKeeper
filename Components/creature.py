@@ -7,6 +7,7 @@ class Creature:
         :param defense: Defense Rating
         :param xp: Experience Points Value
         """
+        self.label = 'Creature'
         self.base_max_hp = hp
         self.hp = hp
         self.base_power = power

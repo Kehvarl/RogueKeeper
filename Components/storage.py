@@ -15,24 +15,26 @@ class Storage:
         """
         results = []
 
-        name, quantity = resource.items()[0]
-        if self.capacity_used + quantity > self.capacity:
-            results.append({
-                'item_added': None,
-                'message': 'Insufficient Storage for {0} {1}.  Storage remaining: {2}'.format(
-                    quantity, name, self.capacity - self.capacity_used)
-            })
+        for name, quantity in resource.items():
+            if self.capacity_used + quantity > self.capacity:
+                results.append({
+                    'item': resource,
+                    'item_status': 'rejected',
+                    'message': 'Insufficient Storage for {0} {1}.  Storage remaining: {2}'.format(
+                        quantity, name, self.capacity - self.capacity_used)
+                })
 
-        else:
-            results.append({
-                'item_added': resource,
-                'message': '{0} {1} added to {2}'.format(quantity, name, self.label)
-            })
-            if name in self.resources:
-                self.resources[name] += quantity
             else:
-                self.resources[name] = quantity
-            self.capacity_used += quantity
+                results.append({
+                    'item': resource,
+                    'item_status': 'stored',
+                    'message': '{0} {1} added to {2}'.format(quantity, name, self.label)
+                })
+                if name in self.resources:
+                    self.resources[name] += quantity
+                else:
+                    self.resources[name] = quantity
+                self.capacity_used += quantity
 
         return results
 

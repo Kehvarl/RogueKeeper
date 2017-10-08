@@ -1,6 +1,7 @@
 import libtcodpy as libtcod
 from Entities.entity import Entity
 from Components.creature import Creature
+from Components.storage import Storage
 from input_handlers import handle_keys
 from UI.render_functions import render_all, clear_all
 from Map.game_map import GameMap
@@ -32,11 +33,10 @@ def main():
     player_y = game_map.player_start_y
 
     player = Entity(player_x, player_y, 'G', libtcod.white)
-    player_creature = Creature(25, 5, 5, 0)
-    player.add_component(player_creature)
+    player.add_component(Creature(25, 5, 5, 0))
+    player.add_component(Storage('Inventory', 100))
     npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
-    npc_creature = Creature(10, 5, 5, 25)
-    npc.add_component(npc_creature)
+    npc.add_component(Creature(10, 5, 5, 25))
     game_map.entities = [npc, player]
     game_map.seed_ore()
 
@@ -70,7 +70,13 @@ def main():
 
         if resources:
             for resource in resources:
-                print(resource)
+                status_list = player.components['Inventory'].add_resource(resource)
+                for status in status_list:
+                    if status.get('item_status', 'none') == 'rejected':
+                        resource_drop = Entity(player.x, player.y, '$', libtcod.white,
+                                               resource=resource)
+                        game_map.entities.append(resource_drop)
+
         if esc:
             return True
 
