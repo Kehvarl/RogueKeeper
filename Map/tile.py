@@ -46,4 +46,5 @@ class Tile:
             mined_resources = []
             for resource in self.resources:
                 mined_resources.append(resource())
+            self.resources = []
             return mined_resources
