@@ -1,91 +1,103 @@
-from Map.tile import Tile
-
-
-class Line:
-    """
-    Bresenham's Line Algorithm
-    Produces a list of tuples from start and end
-    http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm#Python
-    """
-    def __init__(self, x0, y0, x1, y1):
-        self.points = self.get_points(x0, y0, x1, y1)
-
-    @staticmethod
-    def get_points(x0, y0, x1, y1):
-        # Initial conditions
-        dx = x1 - x0
-        dy = y1 - y0
-
-        # Determine line steepness
-        is_steep = abs(dy) > abs(dx)
-
-        # Rotate the line if it's too steep
-        if is_steep:
-            x0, y0 = y0, x0
-            x1, y1 = y1, x1
-
-        # Swap start and end points if necessary.
-        swapped = False
-        if x0 > x1:
-            x0, x1 = x1, x0
-            y0, y1 = y1, y0
-            swapped = True
-
-        # Recalculate differential
-        dx = x1 - x0
-        dy = y1 - y0
-
-        # Calculate Error
-        error = int(dx / 2.0)
-        y_step = 1 if y0 < y1 else -1
-
-        # Iterate over bounding box and generate points between start and end
-        y = y1
-        points = []
-        for x in range(x0, x1 + 1):
-            coord = (y, x) if is_steep else (x, y)
-            points.append(coord)
-            error -= abs(dy)
-            if error < 0:
-                y += y_step
-                error += dx
-
-        # Reverse the list if the start and end were swapped
-        if swapped:
-            points.reverse()
-
-        return points
+from Map.game_map import GameMap
 
 
 class FieldOfView:
-    def __init__(self, game_map):
-        self.game_map = game_map
-        self.visible = self.initialize_view()
-        self.tiles = [
-            [Tile()
-             for _ in range(game_map.height)]
-            for _ in range(game_map.width)]
+    """
+    Python Shadowcasting implementation
+    Source: http://www.roguebasin.com/index.php?title=Python_shadowcasting_implementation
+    """
+    # Multipliers for transforming coordinates to other octant:
+    mult_xx = [1,  0,  0, -1, -1,  0,  0,  1]
+    mult_xy = [0,  1, -1,  0,  0, -1,  1,  0]
+    mult_yx = [0,  1,  1,  0,  0, -1, -1,  0]
+    mult_yy = [1,  0,  0,  1, -1,  0,  0, -1]
 
-    def initialize_view(self):
-        visible = [
+    def __init__(self, game_map):
+        """
+        Create FOV Map
+        :param GameMap game_map: Current level map
+        """
+        self.game_map = game_map
+        self.in_fov = self._clear_fov()
+
+    def recalculate_fov(self, x, y, radius):
+        """
+        Calculate the visible portion of the map for an entity
+        :param x: X coordinate of Entity
+        :param y: Y coordinate of Entity
+        :param radius: Distance Entity can see
+        """
+        self.in_fov = self._clear_fov()
+        for octant in range(8):
+            self._cast_light(x, y, 1, 1.0, 0.0, radius,
+                             FieldOfView.mult_xx[octant], FieldOfView.mult_xy[octant],
+                             FieldOfView.mult_yx[octant], FieldOfView.mult_yy[octant])
+
+    def is_in_fov(self, x, y):
+        return self.in_fov[x][y]
+
+    def _clear_fov(self):
+        """
+        Reset the map visibility (All False)
+        """
+        return [
             [False
              for _ in range(self.game_map.height)]
             for _ in range(self.game_map.width)]
-        return visible
 
-    def update(self, player_x, player_y, sight_radius=10):
-        self.visible = self.initialize_view()
-        sight_range = sight_radius * sight_radius
-        for y in range(-sight_radius, sight_radius):
-            for x in range(-sight_radius, sight_radius):
-                if x * x + y * y > sight_range:
+    def _cast_light(self,
+                    cx, cy, row, start, end, radius,
+                    xx, xy, yx, yy):
+        """
+        Recursive light-casting function
+        :param cx: entity_x coordinate
+        :param cy: entity_y coordinate
+        :param row:
+        :param start:
+        :param end:
+        :param radius: Distance of view
+        :param xx: octant transform parameter
+        :param xy: octant transform parameter
+        :param yx: octant transform parameter
+        :param yy: octant transform parameter
+        """
+        if start < end:
+            return
+        radius_squared = radius * radius
+        for j in range(row, radius + 1):
+            dx, dy = -j - 1, -j
+            blocked = False
+            new_start = start
+            while dx <= 0:
+                dx += 1
+                # Translate the dx, dy coordinates into map coordinates:
+                x, y = cx + dx * xx + dy * xy, cy + dx * yx + dy * yy
+                # l_slope and r_slope store the slopes of the left and right
+                # extremities of the square we're considering:
+                l_slope, r_slope = (dx - 0.5) / (dy + 0.5), (dx + 0.5) / (dy - 0.5)
+                if start < r_slope:
                     continue
-                if not self.game_map.point_in_map(player_x + x, player_y + y):
-                    continue
-
-                points = Line.get_points(player_x, player_y, player_x + x, player_y + y)
-                print(points)
-                for point in points:
-                    if self.game_map.point_in_map(point[0], point[1]):
-                        self.tiles[point[0]][point[1]] = self.game_map.tiles[point[0]][point[1]]
-                        self.visible[point[0]][point[1]] = True
+                elif end > l_slope:
+                    break
+                else:
+                    # Our light beam is touching this square; light it:
+                    if dx * dx + dy * dy < radius_squared:
+                        self.in_fov[x][y] = True
+                    if blocked:
+                        # we're scanning a row of blocked squares:
+                        if self.game_map.tiles[x][y].block_sight:
+                            new_start = r_slope
+                            continue
+                        else:
+                            blocked = False
+                            start = new_start
+                    else:
+                        if self.game_map.tiles[x][y].block_sight and j < radius:
+                            # This is a blocking square, start a child scan:
+                            blocked = True
+                            self._cast_light(cx, cy, j + 1, start, l_slope,
+                                             radius, xx, xy, yx, yy)
+                            new_start = r_slope
+            # Row is scanned; do next row unless last square was blocked:
+            if blocked:
+                break
