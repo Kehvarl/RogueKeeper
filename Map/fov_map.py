@@ -28,6 +28,7 @@ class FieldOfView:
         :param radius: Distance Entity can see
         """
         self.in_fov = self._clear_fov()
+        self.in_fov[x][y] = True
         for octant in range(8):
             self._cast_light(x, y, 1, 1.0, 0.0, radius,
                              FieldOfView.mult_xx[octant], FieldOfView.mult_xy[octant],

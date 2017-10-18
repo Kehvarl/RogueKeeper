@@ -7,7 +7,7 @@ def render_all(con, entities, game_map, fov_map, fov_recompute, screen_width, sc
     :param con: Console to draw on
     :param list entities: All the Entities on the map
     :param Map.game_map.GameMap game_map: Map of the current level
-    :param fov_map: Field-Of-View map overlay
+    :param Map.fov_map.FieldOfView fov_map: Field-Of-View map overlay
     :param bool fov_recompute: Redraw visible area (FOV has changed)
     :param int screen_width: Screen size
     :param int screen_height: Screen size
@@ -18,7 +18,7 @@ def render_all(con, entities, game_map, fov_map, fov_recompute, screen_width, sc
     if fov_recompute:
         for y in range(game_map.height):
             for x in range(game_map.width):
-                visible = libtcod.map_is_in_fov(fov_map, x, y)
+                visible = fov_map.is_in_fov(x, y)
                 wall = game_map.tiles[x][y].block_sight
 
                 if visible:

@@ -4,8 +4,8 @@ from Components.storage import Storage
 from Entities.entity import Entity
 from Map.map_functions import initialize_tiles, make_map, seed_ore
 from Map.resource_functions import iron_ore
-from Map.fov_function import initialize_fov, recompute_fov
 from Map.game_map import GameMap
+from Map.fov_map import FieldOfView
 from UI.render_functions import render_all, clear_all
 from input_handlers import handle_keys
 
@@ -18,8 +18,6 @@ def main():
     map_width = 80
     map_height = 45
     # Field-Of-View settings
-    fov_algorithm = libtcod.FOV_SHADOW
-    fov_light_walls = True
     fov_radius = 10
     # Display-field colors
     colors = {
@@ -42,7 +40,7 @@ def main():
 
     # Field-of-view setup
     fov_recompute = True
-    fov_map = initialize_fov(game_map)
+    fov_map = FieldOfView(game_map)
 
     # Initialize Player
     player = Entity(game_map.player_start_x, game_map.player_start_y, 'G', libtcod.white)
@@ -64,7 +62,7 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
 
         if fov_recompute:
-            recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
+            fov_map.recalculate_fov(player.x, player.y, fov_radius)
 
         render_all(con, game_map.entities, game_map, fov_map, fov_recompute, screen_width, screen_height, colors)
 
@@ -86,7 +84,6 @@ def main():
             if game_map.point_in_map(player.x + dx, player.y + dy):
                 if game_map.is_blocked(player.x + dx, player.y + dy):
                     resources = game_map.dig(player.x + dx, player.y + dy)
-                    fov_map = initialize_fov(game_map)
                 else:
                     player.move(dx, dy)
                     fov_recompute = True
