@@ -1,6 +1,3 @@
-from Map.game_map import GameMap
-
-
 class FieldOfView:
     """
     Python Shadowcasting implementation
@@ -15,7 +12,7 @@ class FieldOfView:
     def __init__(self, game_map):
         """
         Create FOV Map
-        :param GameMap game_map: Current level map
+        :param Map.game_map.GameMap game_map: Current level map
         """
         self.game_map = game_map
         self.in_fov = self._clear_fov()
@@ -23,9 +20,9 @@ class FieldOfView:
     def recalculate_fov(self, x, y, radius):
         """
         Calculate the visible portion of the map for an entity
-        :param x: X coordinate of Entity
-        :param y: Y coordinate of Entity
-        :param radius: Distance Entity can see
+        :param int x: X coordinate of Entity
+        :param int y: Y coordinate of Entity
+        :param int radius: Distance Entity can see
         """
         self.in_fov = self._clear_fov()
         self.in_fov[x][y] = True
@@ -35,6 +32,12 @@ class FieldOfView:
                              FieldOfView.mult_yx[octant], FieldOfView.mult_yy[octant])
 
     def is_in_fov(self, x, y):
+        """
+        Check if a given Tile is visible
+        :param int x: Tile Coordinate
+        :param int y: Tile Coordinate
+        :return boolean: True if Tile can be seen.
+        """
         return self.in_fov[x][y]
 
     def _clear_fov(self):
@@ -51,16 +54,16 @@ class FieldOfView:
                     xx, xy, yx, yy):
         """
         Recursive light-casting function
-        :param cx: entity_x coordinate
-        :param cy: entity_y coordinate
-        :param row:
-        :param start:
-        :param end:
-        :param radius: Distance of view
-        :param xx: octant transform parameter
-        :param xy: octant transform parameter
-        :param yx: octant transform parameter
-        :param yy: octant transform parameter
+        :param int cx: entity_x coordinate
+        :param int cy: entity_y coordinate
+        :param int row:
+        :param float start:
+        :param float end:
+        :param int radius: Distance of view
+        :param int xx: octant transform parameter
+        :param int xy: octant transform parameter
+        :param int yx: octant transform parameter
+        :param int yy: octant transform parameter
         """
         if start < end:
             return
