@@ -23,7 +23,7 @@ def main():
     colors = {
         'dark_wall': libtcod.Color(0, 0, 100),
         'dark_ground': libtcod.Color(50, 50, 150),
-        'light_wall': libtcod.Color(130,110, 50),
+        'light_wall': libtcod.Color(130, 110, 50),
         'light_ground': libtcod.Color(200, 180, 50)
     }
 
@@ -97,7 +97,7 @@ def main():
                 for status in status_list:
                     if status.get('item_status', 'none') == 'rejected':
                         resource_drop = Entity(player.x, player.y, '$', libtcod.white,
-                                               resource=resource)
+                                               "Player", resource=resource)
                         game_map.entities.append(resource_drop)
 
         if esc:
