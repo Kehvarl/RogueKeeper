@@ -6,6 +6,7 @@ from Map.map_functions import initialize_tiles, make_map, seed_ore
 from Map.resource_functions import iron_ore
 from Map.game_map import GameMap
 from Map.shadowcast_map import ShadowcastMap
+from game_states import GameStates
 from UI.render_functions import render_all, clear_all
 from input_handlers import handle_keys
 
@@ -54,6 +55,8 @@ def main():
     key = libtcod.Key()
     mouse = libtcod.Mouse()
 
+    game_state = GameStates.PLAYER_TURN
+
     # Main game loop
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
@@ -76,7 +79,7 @@ def main():
         fullscreen = action.get('fullscreen')
         resources = None
 
-        if move:
+        if move and game_state == GameStates.PLAYER_TURN:
             dx, dy = move
             destination_x = player.x + dx
             destination_y = player.y + dy
@@ -90,6 +93,7 @@ def main():
                     else:
                         player.move(dx, dy)
                         fov_recompute = True
+                game_state = GameStates.OTHER_TURN
 
         if resources:
             for resource in resources:
@@ -105,6 +109,12 @@ def main():
 
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
+
+        if game_state == GameStates.OTHER_TURN:
+            for entity in game_map.entities:
+                if entity != player:
+                    print('The {0} waits...'.format(entity.name))
+            game_state = GameStates.PLAYER_TURN
 
 
 if __name__ == '__main__':
