@@ -1,5 +1,7 @@
+import libtcodpy as libtcod
 from random import randint
 
+from Entities.entity import Entity
 from Map.room import Room
 from Map.tile import Tile
 
@@ -24,13 +26,15 @@ def initialize_tiles(game_map, default_block_move=True, default_block_sight=True
     return tiles
 
 
-def make_map(game_map, max_rooms=1, room_min_size=5, room_max_size=10):
+def make_map(game_map, max_rooms=1, room_min_size=5, room_max_size=10,
+             max_monsters_per_room=3):
     """
     Create initial Map Layout
     :param Map.game_map.GameMap game_map: The game map being worked with
     :param int max_rooms: Number of rooms to attempt to generate
     :param int room_min_size: Smallest allowable room (width or height)
     :param int room_max_size: Largest allowable room (width or height)
+    :param int max_monsters_per_room: Maximum number of Entities to spawn in a room
     """
     num_rooms = 0
 
@@ -78,6 +82,8 @@ def make_map(game_map, max_rooms=1, room_min_size=5, room_max_size=10):
                     # first move vertically, then horizontally
                     create_v_tunnel(game_map, prev_y, new_y, prev_x)
                     create_h_tunnel(game_map, prev_x, new_x, new_y)
+
+                place_entities(game_map, new_room, max_monsters_per_room)
 
             # finally, append the new room to the list
             game_map.rooms.append(new_room)
@@ -156,3 +162,27 @@ def create_ore_vein(game_map, x, y, ore_function):
                 game_map.tiles[current_x][current_y].resources.append(ore_function)
         current_x += randint(-1, 1)
         current_y += randint(-1, 1)
+
+
+def place_entities(game_map, room, max_monsters_per_room):
+    """
+    Add monsters to a room in the game_map
+    :param Map.game_map.GameMap game_map: The game map being worked with
+    :param Map.room.Room room: Map room to add monsters to
+    :param int max_monsters_per_room: Maximum number of Entities to spawn in the room
+    """
+    # Get a random number of monsters
+    number_of_monsters = randint(0, max_monsters_per_room)
+
+    for i in range(number_of_monsters):
+        # Choose a random location in the room
+        x = randint(room.x1 + 1, room.x2 - 1)
+        y = randint(room.y1 + 1, room.y2 - 1)
+
+        if not any([entity for entity in game_map.entities if entity.x == x and entity.y == y]):
+            if randint(0, 100) < 80:
+                monster = Entity(x, y, 'k', libtcod.desaturated_green, "Kobold", blocks=True)
+            else:
+                monster = Entity(x, y, 's', libtcod.darker_green, "Skeleton", blocks=True)
+
+            game_map.entities.append(monster)

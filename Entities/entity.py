@@ -3,11 +3,13 @@ class Entity:
     Any object on the map
     """
 
-    def __init__(self, x, y, char, color, treasure=None, resource=None):
+    def __init__(self, x, y, char, color, name, blocks=False, treasure=None, resource=None):
         self.x = x
         self.y = y
         self.char = char
         self.color = color
+        self.name = name
+        self.blocks = blocks
         self.treasure = treasure
         self.resource = resource
         self.components = {}

@@ -39,8 +39,20 @@ class GameMap:
     def is_blocked(self, x, y):
         """
         Check if a tile blocks movement
-        :param int x: Tile Position
-        :param int y: Tile Position
+        :param int x: position of Tile on map
+        :param int y: position of Tile on map
         :return bool: True if tile blocks movement.
         """
         return self.tiles[x][y].block_move
+
+    def get_blocking_entities_at_location(self, x, y):
+        """
+        Check for Entities that block movement at a given point
+        :param int x: position to check for Entities
+        :param int y: position to check for Entities
+        :return: Blocking Entity or None if no blocking entities
+        """
+        for entity in self.entities:
+            if entity.blocks and entity.x == x and entity.y == y:
+                return entity
+        return None

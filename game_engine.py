@@ -43,16 +43,13 @@ def main():
     fov_map = ShadowcastMap(game_map)
 
     # Initialize Player
-    player = Entity(game_map.player_start_x, game_map.player_start_y, 'G', libtcod.white)
+    player = Entity(game_map.player_start_x, game_map.player_start_y,
+                    '@', libtcod.white, "Player", blocks=True)
     player.add_component(Creature(25, 5, 5, 0))
     player.add_component(Storage('Inventory', 100))
 
-    # Initialize test NPC
-    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), '@', libtcod.yellow)
-    npc.add_component(Creature(10, 5, 5, 25))
-
     # Add starting entities to map
-    game_map.entities = [npc, player]
+    game_map.entities.append(player)
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()
@@ -81,12 +78,18 @@ def main():
 
         if move:
             dx, dy = move
-            if game_map.point_in_map(player.x + dx, player.y + dy):
-                if game_map.is_blocked(player.x + dx, player.y + dy):
+            destination_x = player.x + dx
+            destination_y = player.y + dy
+            if game_map.point_in_map(destination_x, destination_y):
+                if game_map.is_blocked(destination_x, destination_y):
                     resources = game_map.dig(player.x + dx, player.y + dy)
                 else:
-                    player.move(dx, dy)
-                    fov_recompute = True
+                    target = game_map.get_blocking_entities_at_location(destination_x, destination_y)
+                    if target:
+                        print('You kick the {0} in the shin.'.format(target.name))
+                    else:
+                        player.move(dx, dy)
+                        fov_recompute = True
 
         if resources:
             for resource in resources:
