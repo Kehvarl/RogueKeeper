@@ -1,4 +1,4 @@
-class FieldOfView:
+class ShadowcastMap:
     """
     Python Shadowcasting implementation
     Source: http://www.roguebasin.com/index.php?title=Python_shadowcasting_implementation
@@ -28,8 +28,8 @@ class FieldOfView:
         self.in_fov[x][y] = True
         for octant in range(8):
             self._cast_light(x, y, 1, 1.0, 0.0, radius,
-                             FieldOfView.mult_xx[octant], FieldOfView.mult_xy[octant],
-                             FieldOfView.mult_yx[octant], FieldOfView.mult_yy[octant])
+                             ShadowcastMap.mult_xx[octant], ShadowcastMap.mult_xy[octant],
+                             ShadowcastMap.mult_yx[octant], ShadowcastMap.mult_yy[octant])
 
     def is_in_fov(self, x, y):
         """

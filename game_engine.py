@@ -5,7 +5,7 @@ from Entities.entity import Entity
 from Map.map_functions import initialize_tiles, make_map, seed_ore
 from Map.resource_functions import iron_ore
 from Map.game_map import GameMap
-from Map.fov_map import FieldOfView
+from Map.shadowcast_map import ShadowcastMap
 from UI.render_functions import render_all, clear_all
 from input_handlers import handle_keys
 
@@ -40,7 +40,7 @@ def main():
 
     # Field-of-view setup
     fov_recompute = True
-    fov_map = FieldOfView(game_map)
+    fov_map = ShadowcastMap(game_map)
 
     # Initialize Player
     player = Entity(game_map.player_start_x, game_map.player_start_y, 'G', libtcod.white)
