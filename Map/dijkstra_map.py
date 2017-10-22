@@ -1,4 +1,3 @@
-
 class DijkstraMap:
     """
     Python implementation of Dijkstra Maps
@@ -19,6 +18,15 @@ class DijkstraMap:
         self.game_map = game_map
         self.tiles = self._clear_map()
         self.goals = []
+
+    def add_goal(self, x, y, score=0):
+        """
+        Add a goal tile to the map
+        :param int x: Tile X coordinate
+        :param int y: Tile Y coordinate
+        :param int score: Desirability of this location (default: 0)
+        """
+        self.goals.append((x, y, score))
 
     def recalculate_map(self):
         """
@@ -53,13 +61,18 @@ class DijkstraMap:
 
     def _clear_map(self, default=100):
         """
-        Reset the map scores to an arbitrary value
+        Reset the map scores to an arbitrary value and populate goals
         :param int default: the initial value to set for each cell
         """
-        return [
+        tiles = [
             [default
              for _ in range(self.game_map.height)]
             for _ in range(self.game_map.width)]
+
+        for x, y, score in self.goals:
+            tiles[x][y] = score
+
+        return tiles
 
     def _get_lowest_neighbor_value(self, x, y):
         """
