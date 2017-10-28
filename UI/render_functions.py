@@ -1,5 +1,13 @@
 import libtcodpy as libtcod
 
+from enum import Enum
+
+
+class RenderOrder(Enum):
+    CORPSE = 1
+    ITEM = 2
+    ACTOR = 3
+
 
 def render_all(con, entities, game_map, fov_map, fov_recompute, screen_width, screen_height, colors):
     """
@@ -33,7 +41,8 @@ def render_all(con, entities, game_map, fov_map, fov_recompute, screen_width, sc
                         libtcod.console_set_char_background(con, x, y, colors.get('dark_ground'), libtcod.BKGND_SET)
 
     # Draw all the entities in the game map
-    for entity in entities:
+    entities_in_render_order = sorted(entities, key=lambda e: e.render_order.value)
+    for entity in entities_in_render_order:
         draw_entity(con, entity)
 
     libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)

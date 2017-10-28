@@ -7,7 +7,7 @@ from Map.resource_functions import iron_ore
 from Map.game_map import GameMap
 from Map.shadowcast_map import ShadowcastMap
 from game_states import GameStates
-from UI.render_functions import render_all, clear_all
+from UI.render_functions import RenderOrder, render_all, clear_all
 from input_handlers import handle_keys
 
 
@@ -45,7 +45,7 @@ def main():
 
     # Initialize Player
     player = Entity(game_map.player_start_x, game_map.player_start_y,
-                    '@', libtcod.white, "Player", blocks=True)
+                    '@', libtcod.white, "Player", blocks=True, render_order=RenderOrder.ACTOR)
     player.add_component(Creature(25, 5, 5, 0))
     player.add_component(Storage('Inventory', 100))
 
@@ -93,7 +93,7 @@ def main():
                     else:
                         player.move(dx, dy)
                         fov_recompute = True
-                game_state = GameStates.OTHER_TURN
+                game_state = GameStates.ENEMY_TURN
 
         if resources:
             for resource in resources:
@@ -110,7 +110,7 @@ def main():
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
 
-        if game_state == GameStates.OTHER_TURN:
+        if game_state == GameStates.ENEMY_TURN:
             for entity in game_map.entities:
                 if entity != player:
                     print('The {0} waits...'.format(entity.name))

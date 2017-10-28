@@ -4,6 +4,7 @@ from random import randint
 from Entities.entity import Entity
 from Map.room import Room
 from Map.tile import Tile
+from UI.render_functions import RenderOrder
 
 
 def initialize_tiles(game_map, default_block_move=True, default_block_sight=True,
@@ -181,8 +182,10 @@ def place_entities(game_map, room, max_monsters_per_room):
 
         if not any([entity for entity in game_map.entities if entity.x == x and entity.y == y]):
             if randint(0, 100) < 80:
-                monster = Entity(x, y, 'k', libtcod.desaturated_green, "Kobold", blocks=True)
+                monster = Entity(x, y, 'k', libtcod.desaturated_green, "Kobold",
+                                 blocks=True, render_order=RenderOrder.ACTOR)
             else:
-                monster = Entity(x, y, 's', libtcod.darker_green, "Skeleton", blocks=True)
+                monster = Entity(x, y, 's', libtcod.darker_green, "Skeleton",
+                                 blocks=True, render_order=RenderOrder.ACTOR)
 
             game_map.entities.append(monster)
